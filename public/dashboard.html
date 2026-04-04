@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📦 Shipping Dashboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      header {
+        background: #2c3e50;
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .subtitle {
+        color: #bdc3c7;
+        margin-top: 5px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+      .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-top: 4px solid #3498db;
+      }
+      .stat-number {
+        font-size: 32px;
+        font-weight: bold;
+        color: #3498db;
+      }
+      .stat-label {
+        color: #666;
+        margin-top: 5px;
+        font-size: 14px;
+      }
+      .orders {
+        display: grid;
+        gap: 15px;
+      }
+      .order-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-right: 4px solid #3498db;
+      }
+      .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .order-id {
+        font-weight: bold;
+        font-size: 18px;
+        color: #2c3e50;
+      }
+      .order-time {
+        color: #999;
+        font-size: 12px;
+      }
+      .order-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin: 15px 0;
+      }
+
+      .detail-label {
+        color: #999;
+        font-size: 12px;
+      }
+      .detail-value {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+      .order-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+      }
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s;
+      }
+      .btn-ship {
+        background: #27ae60;
+        color: white;
+      }
+      .btn-skip {
+        background: #e74c3c;
+        color: white;
+      }
+      button:hover {
+        opacity: 0.8;
+        transform: translateY(-2px);
+      }
+      button:active {
+        transform: translateY(0);
+      }
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+      }
+      .error {
+        background: #fee;
+        color: #c33;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        border-left: 4px solid #c33;
+      }
+      .success {
+        background: #efe;
+        color: #3c3;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        border-left: 4px solid #3c3;
+      }
+      .empty {
+        text-align: center;
+        padding: 40px;
+        background: white;
+        border-radius: 8px;
+        color: #999;
+      }
+      .refresh-info {
+        color: #999;
+        font-size: 12px;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>📦 Shipping Management Dashboard</h1>
+        <p class="subtitle">
+          Manual order shipping control • Real-time updates
+        </p>
+      </header>
+
+      <div id="stats" class="stats">
+        <div class="loading">جاري التحميل...</div>
+      </div>
+
+      <div id="message"></div>
+
+      <div id="orders" class="orders">
+        <div class="loading">جاري تحميل الطلبات...</div>
+      </div>
+
+      <div class="refresh-info">🔄 يتم التحديث تلقائياً كل 5 ثواني</div>
+    </div>
+
+    <script>
+      const API_BASE = window.location.origin;
+
+      async function loadOrders() {
+        try {
+          const [ordersRes, statsRes] = await Promise.all([
+            fetch(`${API_BASE}/orders`),
+            fetch(`${API_BASE}/orders/summary`),
+          ]);
+
+          const orders = await ordersRes.json();
+          const stats = await statsRes.json();
+
+          renderStats(stats);
+          renderOrders(orders.orders || []);
+        } catch (err) {
+          console.error("Load error:", err);
+          showError("خطأ في تحميل الطلبات: " + err.message);
+        }
+      }
+
+      function renderStats(stats) {
+        const html = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.pending || 0}</div>
+                    <div class="stat-label">🔔 طلبات معلقة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.processed || 0}</div>
+                    <div class="stat-label">✅ تم الإرسال</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${(stats.totalPendingValue || 0).toFixed(2)} ₪</div>
+                    <div class="stat-label">💰 قيمة المعلقة</div>
+                </div>
+            `;
+        document.getElementById("stats").innerHTML = html;
+      }
+
+      function renderOrders(orders) {
+        if (orders.length === 0) {
+          document.getElementById("orders").innerHTML =
+            '<div class="empty">📭 لا توجد طلبات معلقة</div>';
+          return;
+        }
+
+        const html = orders
+          .map((order) => {
+            const customer = order.customer || {};
+            const shipping = order.shipping_address || {};
+            const customerName =
+              `${customer.first_name || ""} ${customer.last_name || ""}`.trim();
+
+            return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">#${order.id}</div>
+                            <div class="order-time">${formatDate(order.created_at || order.addedAt)}</div>
+                        </div>
+                    </div>
+                    <div class="order-details">
+                        <div class="detail-item">
+                            <div class="detail-label">👤 العميل</div>
+                            <div class="detail-value">${customerName || "Unknown"}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">📞 الهاتف</div>
+                            <div class="detail-value">${shipping.phone || "N/A"}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">💵 المبلغ</div>
+                            <div class="detail-value">${parseFloat(order.total_price || 0).toFixed(2)} ₪</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">📍 العنوان</div>
+                            <div class="detail-value">${(shipping.address1 || "N/A").substring(0, 30)}...</div>
+                        </div>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn-ship" onclick="shipOrder('${order.id}')">✅ إرسال الآن</button>
+                        <button class="btn-skip" onclick="skipOrder('${order.id}')">❌ تخطي</button>
+                    </div>
+                </div>
+            `;
+          })
+          .join("");
+
+        document.getElementById("orders").innerHTML = html;
+      }
+
+      function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleString("ar-EG", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      async function shipOrder(orderId) {
+        if (!confirm("تأكيد إرسال الطلب " + orderId + "؟")) return;
+
+        try {
+          const res = await fetch(`${API_BASE}/orders/${orderId}/ship`, {
+            method: "POST",
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            showSuccess(
+              `✅ تم إرسال الطلب ${orderId}! الباركود: ${data.barcode}`,
+            );
+            setTimeout(loadOrders, 800);
+          } else {
+            showError("❌ " + (data.error || "خطأ في الإرسال"));
+          }
+        } catch (err) {
+          showError("خطأ: " + err.message);
+        }
+      }
+
+      async function skipOrder(orderId) {
+        const reason = prompt("السبب (اختياري):");
+        if (reason === null) return; // User cancelled
+
+        try {
+          const res = await fetch(`${API_BASE}/orders/${orderId}/skip`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ reason: reason || "لم يحدد" }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            showSuccess(`⏭️ تم تخطي الطلب ${orderId}`);
+            setTimeout(loadOrders, 800);
+          }
+        } catch (err) {
+          showError("خطأ: " + err.message);
+        }
+      }
+
+      function showError(msg) {
+        const el = document.getElementById("message");
+        el.innerHTML = `<div class="error">${msg}</div>`;
+        setTimeout(() => (el.innerHTML = ""), 5000);
+      }
+
+      function showSuccess(msg) {
+        const el = document.getElementById("message");
+        el.innerHTML = `<div class="success">${msg}</div>`;
+        setTimeout(() => (el.innerHTML = ""), 3000);
+      }
+
+      // Load orders initially and then every 5 seconds
+      loadOrders();
+      setInterval(loadOrders, 5000);
+    </script>
+  </body>
+</html>

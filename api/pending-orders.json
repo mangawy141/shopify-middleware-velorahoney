@@ -1,0 +1,389 @@
+{
+  "6701526188245": {
+    "id": 6701526188245,
+    "admin_graphql_api_id": "gid://shopify/Order/6701526188245",
+    "app_id": 580111,
+    "browser_ip": "84.108.110.67",
+    "buyer_accepts_marketing": false,
+    "cancel_reason": null,
+    "cancelled_at": null,
+    "cart_token": "hWNAdqSVtexPz6zWOGuY1YMF",
+    "checkout_token": "2a9ff608531e681c90967beefb9c5fd0",
+    "client_details": {
+      "accept_language": "ar-PS",
+      "browser_height": null,
+      "browser_ip": "84.108.110.67",
+      "browser_width": null,
+      "session_hash": null,
+      "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2.1 Mobile/23C71 Safari/604.1"
+    },
+    "closed_at": null,
+    "company": null,
+    "confirmation_number": "VV1E0F88Y",
+    "confirmed": true,
+    "contact_email": null,
+    "created_at": "2026-04-04T20:00:58+03:00",
+    "currency": "ILS",
+    "current_shipping_price_set": {
+      "shop_money": {
+        "amount": "20.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "20.00",
+        "currency_code": "ILS"
+      }
+    },
+    "current_subtotal_price": "100.00",
+    "current_subtotal_price_set": {
+      "shop_money": {
+        "amount": "100.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "100.00",
+        "currency_code": "ILS"
+      }
+    },
+    "current_total_additional_fees_set": null,
+    "current_total_discounts": "0.00",
+    "current_total_discounts_set": {
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      }
+    },
+    "current_total_duties_set": null,
+    "current_total_price": "120.00",
+    "current_total_price_set": {
+      "shop_money": {
+        "amount": "120.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "120.00",
+        "currency_code": "ILS"
+      }
+    },
+    "current_total_tax": "0.00",
+    "current_total_tax_set": {
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      }
+    },
+    "customer_locale": "ar-PS",
+    "device_id": null,
+    "discount_codes": [],
+    "duties_included": false,
+    "email": "",
+    "estimated_taxes": false,
+    "financial_status": "pending",
+    "fulfillment_status": null,
+    "landing_site": "/",
+    "landing_site_ref": null,
+    "location_id": null,
+    "merchant_business_entity_id": "20194263253",
+    "merchant_of_record_app_id": null,
+    "name": "#1074",
+    "note": null,
+    "note_attributes": [],
+    "number": 74,
+    "order_number": 1074,
+    "order_status_url": "https://velorahoney.myshopify.com/79934587093/orders/91db2696ed5fb4109f62ec7db584ec2f/authenticate?key=da0f5071dfb04c408f9afe3da9bec1b7",
+    "original_total_additional_fees_set": null,
+    "original_total_duties_set": null,
+    "payment_gateway_names": [
+      "Cash on Delivery (COD)"
+    ],
+    "phone": "+970592989334",
+    "po_number": null,
+    "presentment_currency": "ILS",
+    "processed_at": "2026-04-04T20:00:57+03:00",
+    "reference": null,
+    "referring_site": null,
+    "source_identifier": null,
+    "source_name": "web",
+    "source_url": null,
+    "subtotal_price": "100.00",
+    "subtotal_price_set": {
+      "shop_money": {
+        "amount": "100.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "100.00",
+        "currency_code": "ILS"
+      }
+    },
+    "tags": "",
+    "tax_exempt": false,
+    "tax_lines": [],
+    "taxes_included": false,
+    "test": false,
+    "token": "91db2696ed5fb4109f62ec7db584ec2f",
+    "total_cash_rounding_payment_adjustment_set": {
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      }
+    },
+    "total_cash_rounding_refund_adjustment_set": {
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      }
+    },
+    "total_discounts": "0.00",
+    "total_discounts_set": {
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      }
+    },
+    "total_line_items_price": "100.00",
+    "total_line_items_price_set": {
+      "shop_money": {
+        "amount": "100.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "100.00",
+        "currency_code": "ILS"
+      }
+    },
+    "total_outstanding": "120.00",
+    "total_price": "120.00",
+    "total_price_set": {
+      "shop_money": {
+        "amount": "120.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "120.00",
+        "currency_code": "ILS"
+      }
+    },
+    "total_shipping_price_set": {
+      "shop_money": {
+        "amount": "20.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "20.00",
+        "currency_code": "ILS"
+      }
+    },
+    "total_tax": "0.00",
+    "total_tax_set": {
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      },
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "ILS"
+      }
+    },
+    "total_tip_received": "0.00",
+    "total_weight": 0,
+    "updated_at": "2026-04-04T20:00:59+03:00",
+    "user_id": null,
+    "billing_address": {
+      "first_name": "Test",
+      "address1": "نابلس",
+      "phone": "0592989334",
+      "city": "نابلس",
+      "zip": null,
+      "province": null,
+      "country": "Palestinian Territory, Occupied",
+      "last_name": "2",
+      "address2": null,
+      "company": null,
+      "latitude": 32.2226678,
+      "longitude": 35.2621461,
+      "name": "Test 2",
+      "country_code": "PS",
+      "province_code": null
+    },
+    "customer": {
+      "id": 8857847726293,
+      "created_at": "2026-03-24T01:56:53+02:00",
+      "updated_at": "2026-04-04T20:00:59+03:00",
+      "first_name": "Yusef",
+      "last_name": "Yusef",
+      "state": "disabled",
+      "note": null,
+      "verified_email": true,
+      "multipass_identifier": null,
+      "tax_exempt": false,
+      "email": null,
+      "phone": "+970592989334",
+      "currency": "ILS",
+      "tax_exemptions": [],
+      "admin_graphql_api_id": "gid://shopify/Customer/8857847726293",
+      "default_address": {
+        "id": 10378485727445,
+        "customer_id": 8857847726293,
+        "first_name": "Test",
+        "last_name": "2",
+        "company": null,
+        "address1": "نابلس",
+        "address2": null,
+        "city": "نابلس",
+        "province": null,
+        "country": "Palestinian Territory, Occupied",
+        "zip": null,
+        "phone": "0592989334",
+        "name": "Test 2",
+        "province_code": null,
+        "country_code": "PS",
+        "country_name": "Palestinian Territory, Occupied",
+        "default": true
+      }
+    },
+    "discount_applications": [],
+    "fulfillments": [],
+    "line_items": [
+      {
+        "id": 15765884960981,
+        "admin_graphql_api_id": "gid://shopify/LineItem/15765884960981",
+        "attributed_staffs": [],
+        "current_quantity": 1,
+        "fulfillable_quantity": 1,
+        "fulfillment_service": "manual",
+        "fulfillment_status": null,
+        "gift_card": false,
+        "grams": 0,
+        "name": "غسول وجه panoxyl",
+        "price": "100.00",
+        "price_set": {
+          "shop_money": {
+            "amount": "100.00",
+            "currency_code": "ILS"
+          },
+          "presentment_money": {
+            "amount": "100.00",
+            "currency_code": "ILS"
+          }
+        },
+        "product_exists": true,
+        "product_id": 9311624986837,
+        "properties": [],
+        "quantity": 1,
+        "requires_shipping": true,
+        "sales_line_item_group_id": null,
+        "sku": null,
+        "taxable": true,
+        "title": "غسول وجه panoxyl",
+        "total_discount": "0.00",
+        "total_discount_set": {
+          "shop_money": {
+            "amount": "0.00",
+            "currency_code": "ILS"
+          },
+          "presentment_money": {
+            "amount": "0.00",
+            "currency_code": "ILS"
+          }
+        },
+        "variant_id": 53490247860437,
+        "variant_inventory_management": "shopify",
+        "variant_title": null,
+        "vendor": "velora honey فيلورا",
+        "tax_lines": [],
+        "duties": [],
+        "discount_allocations": []
+      }
+    ],
+    "payment_terms": null,
+    "refunds": [],
+    "shipping_address": {
+      "first_name": "Test",
+      "address1": "نابلس",
+      "phone": "0592989334",
+      "city": "نابلس",
+      "zip": null,
+      "province": null,
+      "country": "Palestinian Territory, Occupied",
+      "last_name": "2",
+      "address2": null,
+      "company": null,
+      "latitude": 32.2226678,
+      "longitude": 35.2621461,
+      "name": "Test 2",
+      "country_code": "PS",
+      "province_code": null
+    },
+    "shipping_lines": [
+      {
+        "id": 5359136735445,
+        "carrier_identifier": null,
+        "code": "الضفة",
+        "current_discounted_price_set": {
+          "shop_money": {
+            "amount": "20.00",
+            "currency_code": "ILS"
+          },
+          "presentment_money": {
+            "amount": "20.00",
+            "currency_code": "ILS"
+          }
+        },
+        "discounted_price": "20.00",
+        "discounted_price_set": {
+          "shop_money": {
+            "amount": "20.00",
+            "currency_code": "ILS"
+          },
+          "presentment_money": {
+            "amount": "20.00",
+            "currency_code": "ILS"
+          }
+        },
+        "is_removed": false,
+        "phone": null,
+        "price": "20.00",
+        "price_set": {
+          "shop_money": {
+            "amount": "20.00",
+            "currency_code": "ILS"
+          },
+          "presentment_money": {
+            "amount": "20.00",
+            "currency_code": "ILS"
+          }
+        },
+        "requested_fulfillment_service_id": null,
+        "source": "shopify",
+        "title": "الضفة",
+        "tax_lines": [],
+        "discount_allocations": []
+      }
+    ],
+    "returns": [],
+    "line_item_groups": [],
+    "status": "PENDING",
+    "addedAt": "2026-04-04T17:01:04.670Z"
+  }
+}
