@@ -19,17 +19,137 @@
         margin: 0 auto;
         padding: 20px;
       }
+
+      /* ============== Login Page ============== */
+      .login-page {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .login-card {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .login-card h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-size: 28px;
+      }
+
+      .login-card .subtitle {
+        text-align: center;
+        color: #999;
+        font-size: 14px;
+        margin-bottom: 30px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: bold;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 12px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .login-btn:hover {
+        background: #764ba2;
+        transform: translateY(-2px);
+      }
+
+      .login-error {
+        background: #fee;
+        color: #c33;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border-left: 4px solid #c33;
+        display: none;
+      }
+
+      .login-error.show {
+        display: block;
+      }
+
+      /* ============== Dashboard Page ============== */
+      .dashboard-page {
+        display: none;
+      }
+
       header {
         background: #2c3e50;
         color: white;
         padding: 20px;
         border-radius: 8px;
         margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
-      h1 {
+
+      header h1 {
         margin: 0;
         font-size: 24px;
       }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .logout-btn {
+        background: #e74c3c;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .logout-btn:hover {
+        background: #c0392b;
+      }
+
       .subtitle {
         color: #bdc3c7;
         margin-top: 5px;
@@ -120,6 +240,14 @@
         background: #e74c3c;
         color: white;
       }
+      .btn-whatsapp {
+        background: #25d366;
+        color: white;
+      }
+      .btn-whatsapp-alt {
+        background: #1abc9c;
+        color: white;
+      }
       button:hover {
         opacity: 0.8;
         transform: translateY(-2px);
@@ -163,36 +291,171 @@
     </style>
   </head>
   <body>
-    <div class="container">
-      <header>
-        <h1>📦 Shipping Management Dashboard</h1>
-        <p class="subtitle">
-          Manual order shipping control • Real-time updates
-        </p>
-      </header>
+    <!-- ============== Login Page ============== -->
+    <div id="loginPage" class="login-page">
+      <div class="login-card">
+        <h1>🔐 Admin Login</h1>
+        <p class="subtitle">Shipping Management System</p>
 
-      <div id="stats" class="stats">
-        <div class="loading">جاري التحميل...</div>
+        <div id="loginError" class="login-error"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="username">👤 Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">🔑 Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="login-btn">Login</button>
+        </form>
       </div>
+    </div>
 
-      <div id="message"></div>
+    <!-- ============== Dashboard Page ============== -->
+    <div id="dashboardPage" class="dashboard-page">
+      <div class="container">
+        <header>
+          <div>
+            <h1>📦 Shipping Management Dashboard</h1>
+            <p class="subtitle">
+              Manual order shipping control • Real-time updates
+            </p>
+          </div>
+          <div class="header-right">
+            <span id="adminName" style="color: #bdc3c7"></span>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+          </div>
+        </header>
 
-      <div id="orders" class="orders">
-        <div class="loading">جاري تحميل الطلبات...</div>
+        <div id="stats" class="stats">
+          <div class="loading">جاري التحميل...</div>
+        </div>
+
+        <div id="message"></div>
+
+        <div id="orders" class="orders">
+          <div class="loading">جاري تحميل الطلبات...</div>
+        </div>
+
+        <div class="refresh-info">🔄 يتم التحديث تلقائياً كل 5 ثواني</div>
       </div>
-
-      <div class="refresh-info">🔄 يتم التحديث تلقائياً كل 5 ثواني</div>
     </div>
 
     <script>
       const API_BASE = window.location.origin;
+      let authToken = localStorage.getItem("authToken");
+      let currentUsername = localStorage.getItem("username");
 
+      // ============== Authentication ==============
+      function handleLogin(event) {
+        event.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        fetch(`${API_BASE}/admin/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              // Store token and username
+              localStorage.setItem("authToken", data.token);
+              localStorage.setItem("username", username);
+
+              authToken = data.token;
+              currentUsername = username;
+
+              // Switch to dashboard
+              showDashboard();
+              loadOrders();
+            } else {
+              showLoginError(data.error || "Invalid credentials");
+            }
+          })
+          .catch((err) => {
+            showLoginError("Connection error: " + err.message);
+          });
+      }
+
+      function showLoginError(msg) {
+        const errorDiv = document.getElementById("loginError");
+        errorDiv.textContent = "❌ " + msg;
+        errorDiv.classList.add("show");
+        setTimeout(() => errorDiv.classList.remove("show"), 5000);
+      }
+
+      function handleLogout() {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("username");
+        authToken = null;
+        currentUsername = null;
+
+        // Reset form
+        document.getElementById("loginForm").reset();
+
+        // Switch to login
+        showLogin();
+      }
+
+      function showLogin() {
+        document.getElementById("loginPage").style.display = "flex";
+        document.getElementById("dashboardPage").style.display = "none";
+      }
+
+      function showDashboard() {
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("dashboardPage").style.display = "block";
+        document.getElementById("adminName").textContent =
+          `👋 Welcome, ${currentUsername}`;
+      }
+
+      // Check auth on page load
+      window.addEventListener("load", () => {
+        if (authToken) {
+          showDashboard();
+          loadOrders();
+        } else {
+          showLogin();
+        }
+      });
+
+      // ============== Dashboard Functions ==============
       async function loadOrders() {
+        if (!authToken) return;
+
         try {
           const [ordersRes, statsRes] = await Promise.all([
-            fetch(`${API_BASE}/orders`),
-            fetch(`${API_BASE}/orders/summary`),
+            fetch(`${API_BASE}/orders`, {
+              headers: { Authorization: `Bearer ${authToken}` },
+            }),
+            fetch(`${API_BASE}/orders/summary`, {
+              headers: { Authorization: `Bearer ${authToken}` },
+            }),
           ]);
+
+          if (ordersRes.status === 401) {
+            handleLogout();
+            return;
+          }
 
           const orders = await ordersRes.json();
           const stats = await statsRes.json();
@@ -264,7 +527,9 @@
                         </div>
                     </div>
                     <div class="order-actions">
-                        <button class="btn-ship" onclick="shipOrder('${order.id}')">✅ إرسال الآن</button>
+                        <button class="btn-whatsapp" onclick="sendWhatsApp('${order.id}', '972')">📱 WhatsApp (972)</button>
+                        <button class="btn-whatsapp-alt" onclick="sendWhatsApp('${order.id}', '970')">📱 WhatsApp (970)</button>
+                        <button class="btn-ship" onclick="shipOrder('${order.id}')">✅ شحن الآن</button>
                         <button class="btn-skip" onclick="skipOrder('${order.id}')">❌ تخطي</button>
                     </div>
                 </div>
@@ -286,22 +551,60 @@
         });
       }
 
+      async function sendWhatsApp(orderId, prefix) {
+        if (!authToken) return;
+
+        try {
+          const res = await fetch(
+            `${API_BASE}/orders/${orderId}/send-whatsapp`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`,
+              },
+              body: JSON.stringify({ prefix }),
+            },
+          );
+          const data = await res.json();
+
+          if (res.status === 401) {
+            handleLogout();
+            return;
+          }
+
+          if (data.success) {
+            showSuccess(`📱 جاري فتح واتساب برقم: ${data.phone}`);
+            setTimeout(() => window.open(data.url, "_blank"), 500);
+          } else {
+            showError("❌ " + (data.error || "خطأ في الاتصال"));
+          }
+        } catch (err) {
+          showError("خطأ: " + err.message);
+        }
+      }
+
       async function shipOrder(orderId) {
-        if (!confirm("تأكيد إرسال الطلب " + orderId + "؟")) return;
+        if (!authToken) return;
+        if (!confirm("تأكيد شحن الطلب " + orderId + "؟")) return;
 
         try {
           const res = await fetch(`${API_BASE}/orders/${orderId}/ship`, {
             method: "POST",
+            headers: { Authorization: `Bearer ${authToken}` },
           });
           const data = await res.json();
 
-          if (data.success) {
-            showSuccess(
-              `✅ تم إرسال الطلب ${orderId}! الباركود: ${data.barcode}`,
-            );
+          if (res.status === 401) {
+            handleLogout();
+            return;
+          }
+
+          if (!data.error) {
+            showSuccess(`✅ تم شحن الطلب ${orderId} بنجاح!`);
             setTimeout(loadOrders, 800);
           } else {
-            showError("❌ " + (data.error || "خطأ في الإرسال"));
+            showError("❌ " + (data.error || "خطأ في الشحن"));
           }
         } catch (err) {
           showError("خطأ: " + err.message);
@@ -309,18 +612,28 @@
       }
 
       async function skipOrder(orderId) {
+        if (!authToken) return;
+
         const reason = prompt("السبب (اختياري):");
-        if (reason === null) return; // User cancelled
+        if (reason === null) return;
 
         try {
           const res = await fetch(`${API_BASE}/orders/${orderId}/skip`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
             body: JSON.stringify({ reason: reason || "لم يحدد" }),
           });
           const data = await res.json();
 
-          if (data.success) {
+          if (res.status === 401) {
+            handleLogout();
+            return;
+          }
+
+          if (data.message) {
             showSuccess(`⏭️ تم تخطي الطلب ${orderId}`);
             setTimeout(loadOrders, 800);
           }
@@ -342,8 +655,14 @@
       }
 
       // Load orders initially and then every 5 seconds
-      loadOrders();
-      setInterval(loadOrders, 5000);
+      setInterval(() => {
+        if (
+          authToken &&
+          document.getElementById("dashboardPage").style.display !== "none"
+        ) {
+          loadOrders();
+        }
+      }, 5000);
     </script>
   </body>
 </html>

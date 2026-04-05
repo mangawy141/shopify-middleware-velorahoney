@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import jwt from "jsonwebtoken";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -88,6 +89,32 @@ const envPath = path.resolve(__dirname, "../.env");
 if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
 }
+
+// ============================================
+// 🔐 Admin Authentication
+// ============================================
+
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your-secret-key-change-in-production";
+
+// Middleware to verify JWT token
+const verifyAdminToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized - No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.admin = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: "Unauthorized - Invalid token" });
+  }
+};
 
 const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET;
 if (!SHOPIFY_WEBHOOK_SECRET) {
@@ -330,6 +357,150 @@ const removePendingOrder = (orderId) => {
   }
 };
 
+// ============================================
+// 📱 WhatsApp Confirmation System
+// ============================================
+
+const formatPhoneForWhatsApp = (order, prefix = "972") => {
+  let phone =
+    order.shipping_address?.phone ||
+    order.phone ||
+    order.customer?.default_address?.phone ||
+    "";
+
+  // Remove all non-digits
+  phone = phone.replace(/\D/g, "");
+
+  // Remove leading zero if exists
+  if (phone.startsWith("0")) {
+    phone = phone.substring(1);
+  }
+
+  // If already has a prefix, return as-is
+  if (phone.startsWith("970") || phone.startsWith("972")) {
+    return phone;
+  }
+
+  // Return with specified prefix
+  return prefix + phone;
+};
+
+const buildWhatsAppMessage = (order) => {
+  const customerName =
+    order.shipping_address?.name ||
+    `${order.customer?.first_name || ""} ${order.customer?.last_name || ""}`.trim() ||
+    "عميلنا";
+
+  const rawCountry = order.shipping_address?.country || "";
+
+  // تبسيط الدولة
+  const country = rawCountry.includes("Palest")
+    ? "فلسطين"
+    : rawCountry.includes("Israel")
+      ? "إسرائيل"
+      : rawCountry;
+
+  const products = (order.line_items || [])
+    .map((item) => `- ${item.name} × ${item.quantity}`)
+    .join("\n");
+
+  const productPrice = order.subtotal_price || order.total_price;
+
+  const shippingPrice =
+    order.total_shipping_price_set?.shop_money?.amount ||
+    order.shipping_lines?.[0]?.price ||
+    0;
+
+  const totalPrice = order.total_price;
+
+  return `مرحبًا ${customerName}
+
+معك فريق Velora Honey بخصوص طلبك رقم #${order.order_number}
+
+🛍 المنتجات:
+${products}
+
+💰 السعر: ${productPrice}₪
+🚚 التوصيل: ${shippingPrice}₪
+📦 الإجمالي: ${totalPrice}₪
+
+📍 الاسم: ${customerName} - ${country}
+
+يرجى تأكيد الطلب بالرد بكلمة "تأكيد"
+(يتم تجهيز الطلبات المؤكدة فقط)
+
+مدة التوصيل: 1-3 أيام عمل
+
+في حال عدم التأكيد، سيتم إلغاء الطلب تلقائيًا`;
+};
+
+// ============================================
+// 📱 Send WhatsApp Confirmation
+// ============================================
+
+app.post(
+  "/orders/:orderId/send-whatsapp",
+  verifyAdminToken,
+  async (req, res) => {
+    const orderId = req.params.orderId;
+    const order = pendingOrdersCache[orderId];
+    const prefix = req.body?.prefix || "972"; // Default to Israeli prefix
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    try {
+      const phone = formatPhoneForWhatsApp(order, prefix);
+      const message = buildWhatsAppMessage(order);
+
+      // Generate WhatsApp link
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+      console.log(`📱 WhatsApp link generated for order ${orderId}`);
+      console.log(`   Phone: +${phone}`);
+
+      res.json({
+        success: true,
+        message: "WhatsApp link generated",
+        url,
+        phone: `+${phone}`,
+      });
+    } catch (err) {
+      console.error("❌ Error generating WhatsApp link:", err.message);
+      res.status(500).json({ error: err.message });
+    }
+  },
+);
+
+// ============================================
+// 🔐 Admin Login
+// ============================================
+
+app.post("/admin/login", (req, res) => {
+  const { username, password } = req.body;
+
+  // Validate credentials
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    const token = jwt.sign({ username, role: "admin" }, JWT_SECRET, {
+      expiresIn: "24h",
+    });
+
+    console.log("✅ Admin login successful");
+    res.json({
+      success: true,
+      message: "Login successful",
+      token,
+    });
+  } else {
+    console.warn(`⚠️ Failed login attempt: ${username}`);
+    res.status(401).json({
+      success: false,
+      error: "Invalid credentials",
+    });
+  }
+});
+
 // Webhook endpoint - Save for manual review
 app.post("/webhooks/orders/create", async (req, res) => {
   // Ignore test webhooks
@@ -359,7 +530,7 @@ app.post("/webhooks/orders/create", async (req, res) => {
 // ========================
 
 // List all pending orders
-app.get("/orders", (req, res) => {
+app.get("/orders", verifyAdminToken, (req, res) => {
   const orders = Object.values(pendingOrdersCache);
   res.json({
     total: orders.length,
@@ -368,7 +539,7 @@ app.get("/orders", (req, res) => {
 });
 
 // Get statistics
-app.get("/orders/summary", (req, res) => {
+app.get("/orders/summary", verifyAdminToken, (req, res) => {
   const pendingOrders = Object.values(pendingOrdersCache);
   const processedCount = processedOrdersCache.length;
   const totalPendingValue = pendingOrders.reduce(
@@ -385,7 +556,7 @@ app.get("/orders/summary", (req, res) => {
 });
 
 // Get single order
-app.get("/orders/:orderId", (req, res) => {
+app.get("/orders/:orderId", verifyAdminToken, (req, res) => {
   const order = pendingOrdersCache[req.params.orderId];
   if (!order) {
     return res.status(404).json({ error: "Order not found" });
@@ -394,7 +565,7 @@ app.get("/orders/:orderId", (req, res) => {
 });
 
 // Ship order (move to Logestechs)
-app.post("/orders/:orderId/ship", async (req, res) => {
+app.post("/orders/:orderId/ship", verifyAdminToken, async (req, res) => {
   const orderId = req.params.orderId;
   const order = pendingOrdersCache[orderId];
 
@@ -422,7 +593,7 @@ app.post("/orders/:orderId/ship", async (req, res) => {
 });
 
 // Skip order (remove without shipping)
-app.post("/orders/:orderId/skip", (req, res) => {
+app.post("/orders/:orderId/skip", verifyAdminToken, (req, res) => {
   const orderId = req.params.orderId;
 
   if (!pendingOrdersCache[orderId]) {
