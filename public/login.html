@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/velora_3.png" />
+    <link rel="stylesheet" href="/dashboard.css" />
+    <title>🔐 Admin Login</title>
+  </head>
+  <body>
+    <div class="login-page" style="display: flex">
+      <div class="login-card">
+        <h1>🔐 Admin Login</h1>
+        <p class="subtitle">Shipping Management System</p>
+        <div id="loginError" class="login-error"></div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="username">👤 Username</label>
+            <input
+              type="text"
+              id="username"
+              placeholder="Enter your username"
+              required
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label for="password">🔑 Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <button type="submit" class="login-btn">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = window.location.origin;
+
+      /**
+       * Show login error
+       */
+      function showLoginError(msg) {
+        const errorDiv = document.getElementById("loginError");
+        if (!errorDiv) return;
+        errorDiv.textContent = "❌ " + msg;
+        errorDiv.classList.add("show");
+        setTimeout(() => errorDiv.classList.remove("show"), 5000);
+      }
+
+      /**
+       * Handle login form submission
+       */
+      function handleLogin(event) {
+        event.preventDefault();
+
+        const username = document.getElementById("username")?.value;
+        const password = document.getElementById("password")?.value;
+
+        if (!username || !password) {
+          showLoginError("يرجى إدخال اسم المستخدم وكلمة المرور");
+          return;
+        }
+
+        fetch(`${API_BASE}/admin/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              localStorage.setItem("authToken", data.token);
+              localStorage.setItem("username", username);
+              window.location.href = "/dashboard";
+            } else {
+              showLoginError(data.error || "بيانات دخول غير صحيحة");
+            }
+          })
+          .catch((err) => {
+            console.error("Login error:", err);
+            showLoginError("خطأ في الاتصال: " + err.message);
+          });
+      }
+
+      // Check if already logged in
+      window.addEventListener("load", () => {
+        const authToken = localStorage.getItem("authToken");
+        if (authToken) {
+          window.location.href = "/dashboard";
+        }
+      });
+    </script>
+  </body>
+</html>

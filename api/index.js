@@ -604,6 +604,24 @@ app.post("/orders/:orderId/skip", verifyAdminToken, (req, res) => {
   res.json({ message: "Order skipped" });
 });
 
+// Serve static files from public directory
+app.use(express.static(path.resolve(__dirname, "../public")));
+
+// Root route - redirect to dashboard
+app.get("/", (req, res) => {
+  res.redirect("/dashboard");
+});
+
+// Serve login page
+app.get("/login.html", (req, res) => {
+  const loginPath = path.resolve(__dirname, "../public/login.html");
+  if (fs.existsSync(loginPath)) {
+    res.sendFile(loginPath);
+  } else {
+    res.status(404).send("Login page not found");
+  }
+});
+
 // Serve dashboard
 app.get("/dashboard", (req, res) => {
   const dashboardPath = path.resolve(__dirname, "../public/dashboard.html");
