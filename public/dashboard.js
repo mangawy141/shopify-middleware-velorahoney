@@ -7,6 +7,7 @@ let authToken = localStorage.getItem("authToken");
 let currentUsername = localStorage.getItem("username");
 let allOrders = [];
 let filteredOrders = [];
+let expandedAccordions = new Set(); // Track which accordions are open
 
 // ============== UTILITIES ==============
 
@@ -73,7 +74,7 @@ function handleLogout() {
 // ============== DATA LOADING ==============
 
 /**
- * Load orders from API
+ * Load orders from API and preserve UI state
  */
 async function loadOrders() {
   if (!authToken) {
@@ -108,10 +109,19 @@ async function loadOrders() {
     }
 
     allOrders = Array.isArray(orders.orders) ? orders.orders : [];
-    filteredOrders = [...allOrders];
+
+    // Preserve UI state: re-read current search/filter values
+    const searchTerm =
+      document.getElementById("searchInput")?.value.toLowerCase() || "";
+    const filterStatus =
+      document.getElementById("filterStatus")?.value || "all";
+
+    // Reapply filter to new data
+    applySearchFilter(searchTerm, filterStatus);
 
     renderStats(stats);
     renderOrders(filteredOrders);
+    restoreAccordionStates(); // Restore open state AFTER render
   } catch (err) {
     console.error("Load error:", err);
     showError("خطأ في تحميل الطلبات: " + err.message);
@@ -190,6 +200,11 @@ function createOrderCard(order, index) {
   const shippingCost = order.total_shipping_price_set?.shop_money?.amount || 0;
   const totalPrice = order.total_price || 0;
 
+  // Check if this accordion should be open
+  const isOpen = expandedAccordions.has(index);
+  const accordionClass = isOpen ? "accordion open" : "accordion";
+  const buttonText = isOpen ? "📂 إخفاء التفاصيل" : "📂 عرض التفاصيل";
+
   return `
     <div class="order-card">
       <div class="order-header">
@@ -219,14 +234,14 @@ function createOrderCard(order, index) {
       </div>
 
       <div class="order-actions">
-        <button class="toggle-btn" onclick="toggleAccordion(${index}, this)">📂 عرض التفاصيل</button>
+        <button class="toggle-btn" onclick="toggleAccordion(${index}, this)">${buttonText}</button>
         <button class="btn-whatsapp" onclick="sendWhatsApp('${order.id}', '972')">📱 WhatsApp (972)</button>
         <button class="btn-whatsapp-alt" onclick="sendWhatsApp('${order.id}', '970')">📱 WhatsApp (970)</button>
         <button class="btn-ship" onclick="shipOrder('${order.id}')">✅ شحن الآن</button>
         <button class="btn-skip" onclick="skipOrder('${order.id}')">❌ تخطي</button>
       </div>
 
-      <div id="accordion-${index}" class="accordion">
+      <div id="accordion-${index}" class="${accordionClass}">
         <div class="accordion-section">
           <div class="accordion-title">📦 المنتجات</div>
           <div class="accordion-content">${products || "لا يوجد منتجات"}</div>
@@ -276,28 +291,46 @@ function createOrderCard(order, index) {
 // ============== ACCORDION ==============
 
 /**
- * Toggle accordion open/close
+ * Toggle accordion open/close and track state
  */
 function toggleAccordion(index, btn) {
   const el = document.getElementById(`accordion-${index}`);
   if (!el) return;
 
   el.classList.toggle("open");
-  btn.textContent = el.classList.contains("open")
-    ? "📂 إخفاء التفاصيل"
-    : "📂 عرض التفاصيل";
+
+  // Track state in Set
+  if (el.classList.contains("open")) {
+    expandedAccordions.add(index);
+    btn.textContent = "📂 إخفاء التفاصيل";
+  } else {
+    expandedAccordions.delete(index);
+    btn.textContent = "📂 عرض التفاصيل";
+  }
+}
+
+/**
+ * Restore accordion states after rendering
+ */
+function restoreAccordionStates() {
+  expandedAccordions.forEach((index) => {
+    const el = document.getElementById(`accordion-${index}`);
+    const btn = document.querySelector(
+      `button[onclick*="toggleAccordion(${index}"]`,
+    );
+    if (el && btn) {
+      el.classList.add("open");
+      btn.textContent = "📂 إخفاء التفاصيل";
+    }
+  });
 }
 
 // ============== SEARCH & FILTER ==============
 
 /**
- * Handle search input
+ * Apply search and filter to all orders
  */
-function handleSearch() {
-  const searchTerm =
-    document.getElementById("searchInput")?.value.toLowerCase() || "";
-  const filterStatus = document.getElementById("filterStatus")?.value || "all";
-
+function applySearchFilter(searchTerm, filterStatus) {
   filteredOrders = allOrders.filter((order) => {
     const customerName =
       `${order.customer?.first_name || ""} ${order.customer?.last_name || ""}`.toLowerCase();
@@ -316,7 +349,18 @@ function handleSearch() {
 
     return matchesSearch && shouldShowByFilter(order, filterStatus);
   });
+}
 
+/**
+ * Handle search input
+ */
+function handleSearch() {
+  const searchTerm =
+    document.getElementById("searchInput")?.value.toLowerCase() || "";
+  const filterStatus = document.getElementById("filterStatus")?.value || "all";
+
+  applySearchFilter(searchTerm, filterStatus);
+  expandedAccordions.clear(); // Clear accordion state on new search
   renderOrders(filteredOrders);
 }
 
@@ -328,25 +372,8 @@ function handleFilter() {
   const searchTerm =
     document.getElementById("searchInput")?.value.toLowerCase() || "";
 
-  filteredOrders = allOrders.filter((order) => {
-    const customerName =
-      `${order.customer?.first_name || ""} ${order.customer?.last_name || ""}`.toLowerCase();
-    const orderNumber = (order.order_number || order.id)
-      .toString()
-      .toLowerCase();
-    const phone = (order.shipping_address?.phone || "").toLowerCase();
-    const email = (order.email || "").toLowerCase();
-
-    const matchesSearch =
-      searchTerm === "" ||
-      customerName.includes(searchTerm) ||
-      orderNumber.includes(searchTerm) ||
-      phone.includes(searchTerm) ||
-      email.includes(searchTerm);
-
-    return matchesSearch && shouldShowByFilter(order, filterStatus);
-  });
-
+  applySearchFilter(searchTerm, filterStatus);
+  expandedAccordions.clear(); // Clear accordion state on new filter
   renderOrders(filteredOrders);
 }
 
@@ -376,6 +403,7 @@ function resetSearchFilter() {
   if (searchInput) searchInput.value = "";
   if (filterStatus) filterStatus.value = "all";
 
+  expandedAccordions.clear(); // Clear accordion state on reset
   filteredOrders = allOrders;
   renderOrders(filteredOrders);
 }
